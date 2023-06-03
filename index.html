@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Base64 Decoder</title>
+</head>
+<body>
+  <pre id="decodedText"></pre>
+
+  <script>
+    // Function to decode Base64 and display the decoded text
+    function decodeBase64() {
+      // Get the Base64 code from the URL parameter
+      var urlParams = new URLSearchParams(window.location.search);
+      var base64Code = urlParams.get("mybase64code");
+
+      // Decode the Base64 code
+      var decodedText = atob(base64Code);
+
+      // Display the decoded text on the webpage
+      document.getElementById("decodedText").textContent = decodedText;
+    }
+
+    // Call the decodeBase64 function on page load
+    window.onload = decodeBase64;
+  </script>
+</body>
+</html>
