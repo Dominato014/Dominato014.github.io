@@ -11,7 +11,7 @@
     function decodeBase64() {
       // Get the Base64 code from the URL parameter
       var urlParams = new URLSearchParams(window.location.search);
-      var base64Code = urlParams.get("b64");
+      var base64Code = urlParams.get("mybase64code");
 
       // Decode the Base64 code
       var decodedText = atob(base64Code);
