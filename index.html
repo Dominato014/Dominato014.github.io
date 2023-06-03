@@ -9,9 +9,9 @@
   <script>
     // Function to decode Base64 and display the decoded text
     function decodeBase64() {
-      // Get the Base64 code from the hash fragment of the URL
-      var hash = window.location.hash.substring(2);
-      var base64Code = decodeURIComponent(hash);
+      // Get the Base64 code from the URL parameter
+      var urlParams = new URLSearchParams(window.location.search);
+      var base64Code = urlParams.get("b64");
 
       // Decode the Base64 code
       var decodedText = atob(base64Code);
