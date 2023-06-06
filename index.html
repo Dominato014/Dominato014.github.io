@@ -1,27 +1,35 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Base64 Decoder</title>
-</head>
-<body>
-  <pre id="decodedText"></pre>
+  <head>
+    <title>File Viewer</title>
+    <script>
+      // Function to fetch and display the file contents
+      function loadFile() {
+        // Get the file URL from the query parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const fileUrl = urlParams.get('file');
 
-  <script>
-    // Function to decode Base64 and display the decoded text
-    function decodeBase64() {
-      // Get the Base64 code from the URL parameter
-      var urlParams = new URLSearchParams(window.location.search);
-      var base64Code = urlParams.get("mybase64code");
+        if (fileUrl) {
+          fetch(fileUrl)
+            .then(response => response.text())
+            .then(content => {
+              // Set the fetched content as the HTML of the page
+              document.documentElement.innerHTML = content;
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              document.body.textContent = 'Error: Unable to load the file.';
+            });
+        } else {
+          document.body.textContent = 'Error: No file specified.';
+        }
+      }
 
-      // Decode the Base64 code
-      var decodedText = atob(base64Code);
-
-      // Display the decoded text on the webpage
-      document.getElementById("decodedText").textContent = decodedText;
-    }
-
-    // Call the decodeBase64 function on page load
-    window.onload = decodeBase64;
-  </script>
-</body>
+      // Call the loadFile function when the page finishes loading
+      window.addEventListener('load', loadFile);
+    </script>
+  </head>
+  <body>
+    <h1>Loading...</h1>
+  </body>
 </html>
