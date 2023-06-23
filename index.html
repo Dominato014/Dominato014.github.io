@@ -1,35 +1,16 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>File Viewer</title>
-    <script>
-      // Function to fetch and display the file contents
-      function loadFile() {
-        // Get the file URL from the query parameter
-        const urlParams = new URLSearchParams(window.location.search);
-        const fileUrl = urlParams.get('file');
-
-        if (fileUrl) {
-          fetch(fileUrl)
-            .then(response => response.text())
-            .then(content => {
-              // Set the fetched content as the HTML of the page
-              document.documentElement.innerHTML = content;
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              document.body.textContent = 'Error: Unable to load the file.';
-            });
-        } else {
-          document.body.textContent = 'Error: No file specified.';
-        }
-      }
-
-      // Call the loadFile function when the page finishes loading
-      window.addEventListener('load', loadFile);
-    </script>
-  </head>
-  <body>
-    <h1>Loading...</h1>
-  </body>
+<head>
+<title>Base64 Decoder</title>
+</head>
+<body>
+<h1>Base64 Decoder</h1>
+<p>The base64 string to decode is:</p>
+<p id="decoded"></p>
+</body>
+<script>
+var base64 = window.location.search.substring(1);
+var decoded = atob(base64.replace(/=/g, ''));
+document.getElementById("decoded").innerHTML = decoded;
+</script>
 </html>
