@@ -1,16 +1,65 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Base64 Decoder</title>
+  <title>Base64 Decoder</title>
+  <style>
+    body {
+      white-space: pre-wrap;
+      font-family: monospace;
+    }
+  </style>
 </head>
 <body>
-<h1>Base64 Decoder</h1>
-<p>The base64 string to decode is:</p>
-<p id="decoded"></p>
+  <script>
+    // Function to decode Base64
+    function decodeBase64(encodedString) {
+      // Check if the browser supports Base64 decoding
+      if (typeof atob === 'function') {
+        return atob(encodedString);
+      } else {
+        // Fallback implementation for older browsers
+        var decodedString = '';
+        var base64Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+
+        var char1, char2, char3;
+        var enc1, enc2, enc3, enc4;
+        var i = 0;
+
+        encodedString = encodedString.replace(/[^A-Za-z0-9\+\/\=]/g, '');
+
+        do {
+          enc1 = base64Chars.indexOf(encodedString.charAt(i++));
+          enc2 = base64Chars.indexOf(encodedString.charAt(i++));
+          enc3 = base64Chars.indexOf(encodedString.charAt(i++));
+          enc4 = base64Chars.indexOf(encodedString.charAt(i++));
+
+          char1 = (enc1 << 2) | (enc2 >> 4);
+          char2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+          char3 = ((enc3 & 3) << 6) | enc4;
+
+          decodedString += String.fromCharCode(char1);
+
+          if (enc3 != 64) {
+            decodedString += String.fromCharCode(char2);
+          }
+          if (enc4 != 64) {
+            decodedString += String.fromCharCode(char3);
+          }
+        } while (i < encodedString.length);
+
+        return decodedString;
+      }
+    }
+
+    // Get the Base64 string from the URL
+    var urlParams = new URLSearchParams(window.location.search);
+    var encodedString = urlParams.get('base64');
+
+    // Decode the Base64 string
+    var decodedString = decodeBase64(encodedString);
+
+    // Display the decoded string
+    document.body.textContent = decodedString;
+  </script>
 </body>
-<script>
-var base64 = window.location.search.substring(1);
-var decoded = atob(base64.replace(/=/g, ''));
-document.getElementById("decoded").innerHTML = decoded;
-</script>
 </html>
