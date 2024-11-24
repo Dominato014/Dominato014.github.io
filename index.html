@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPUB Reader</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Times New Roman', serif;
+            overflow: hidden;
+        }
+
+        #reader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        #settings-panel {
+            position: fixed;
+            top: 50px;
+            right: 20px;
+            width: 200px;
+            background-color: #fff;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .settings-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .settings-button:hover {
+            color: #007bff;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:disabled {
+            background-color: gray;
+            cursor: not-allowed;
+        }
+
+        #next, #prev {
+            position: absolute;
+            bottom: 20px;
+            font-size: 18px;
+        }
+
+        #prev {
+            left: 20px;
+        }
+
+        #next {
+            right: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="reader"></div>
+
+    <!-- Settings Panel -->
+    <div id="settings-panel">
+        <label>Font Size:</label>
+        <input type="range" id="font-size" min="10" max="50" value="16">
+        <br><br>
+        <label>One Page Mode:</label>
+        <input type="checkbox" id="one-page-mode">
+        <br><br>
+        <label>Black & White Mode:</label>
+        <input type="checkbox" id="black-white-mode">
+    </div>
+
+    <!-- Settings Button -->
+    <div class="settings-button" id="settings-toggle">⚙️</div>
+
+    <!-- Navigation Buttons -->
+    <button id="prev" disabled>Previous</button>
+    <button id="next" disabled>Next</button>
+
+    <!-- Scripts -->
+    <!-- Load JSZip from CDN first -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- Now load ePub.js -->
+    <script src="epub.min.js"></script>
+
+    <script>
+        let book, rendition;
+
+        // Load EPUB file and render it
+        async function loadEPUB(filePath, flowMode = "paginated") {
+            try {
+                console.log("Loading EPUB file:", filePath);
+                
+                // Ensure the EPUB file exists and log a message if it fails
+                const response = await fetch(filePath);
+                if (!response.ok) {
+                    console.error("Error loading EPUB file:", response.statusText);
+                    return;
+                }
+
+                if (rendition) {
+                    rendition.destroy(); // Clean up previous rendition
+                }
+
+                // Load the EPUB file using ePub.js
+                book = ePub(await response.blob());
+                rendition = book.renderTo("reader", {
+                    flow: flowMode,  // "scrolled-doc" for single page, "paginated" for two pages
+                    width: "100%",
+                    height: "100%",
+                });
+
+                // Wait for the rendition to be fully displayed
+                await rendition.display();
+                console.log("EPUB file loaded successfully!");
+
+                document.getElementById("next").disabled = false;  // Enable next button
+                document.getElementById("prev").disabled = false;  // Enable prev button
+            } catch (error) {
+                console.error("Failed to load EPUB:", error);
+            }
+        }
+
+        // Handle next and previous page navigation
+        document.getElementById("prev").addEventListener("click", () => {
+            if (rendition) {
+                rendition.prev();
+            }
+        });
+
+        document.getElementById("next").addEventListener("click", () => {
+            if (rendition) {
+                rendition.next();
+            }
+        });
+
+        // Toggle settings panel visibility
+        const settingsToggle = document.getElementById("settings-toggle");
+        const settingsPanel = document.getElementById("settings-panel");
+        settingsToggle.addEventListener("click", () => {
+            const isVisible = settingsPanel.style.display === "block";
+            settingsPanel.style.display = isVisible ? "none" : "block";
+        });
+
+        // Adjust font size
+        const fontSizeInput = document.getElementById("font-size");
+        fontSizeInput.addEventListener("input", () => {
+            const fontSize = `${fontSizeInput.value}px`;
+            rendition.themes.fontSize(fontSize);
+        });
+
+        // One Page Mode toggle
+        const onePageCheckbox = document.getElementById("one-page-mode");
+        onePageCheckbox.addEventListener("change", async () => {
+            const flowMode = onePageCheckbox.checked ? "scrolled-doc" : "paginated";
+            await loadEPUB("test.epub", flowMode);
+        });
+
+        // Black & White Mode toggle
+        const blackWhiteCheckbox = document.getElementById("black-white-mode");
+        blackWhiteCheckbox.addEventListener("change", () => {
+            document.body.style.filter = blackWhiteCheckbox.checked ? "grayscale(100%)" : "none";
+        });
+
+        // Initial load
+        loadEPUB("test.epub"); // Ensure this file is in the correct location
+    </script>
+</body>
+</html>
